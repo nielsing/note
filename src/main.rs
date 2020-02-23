@@ -58,10 +58,11 @@ fn stick(note: &[String], priority: usize) {
 fn toss(ids: &[usize], all: bool) {
     let notes = util::read_to_notes_str(ids);
     if all || notes.len() == 0 {
+        println!("All notes tossed away!");
         util::clear_notes();
         return;
     }
-
+    
     util::write_notes(&notes);
 }
 

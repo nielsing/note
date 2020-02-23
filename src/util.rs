@@ -29,20 +29,20 @@ pub fn read_to_notes(unwanted_ids: &[usize]) -> Vec<Note> {
                 eprintln!("Unable to read file: {}", e);
             }
             notes.lines()
-                 .filter_map(|note| {
-                     if note.len() <= 1 {
-                         return None
-                     }
+                .filter_map(|note| {
+                    if note.len() <= 1 {
+                        return None
+                    }
 
-                     id += 1;
-                     if unwanted_ids.contains(&id) {
-                         return None
-                     }
-                     let mut note = Note::from(note);
-                     note.id = id;
-                     Some(note)
-                 })
-                 .collect()
+                    id += 1;
+                    if unwanted_ids.contains(&id) {
+                        return None
+                    }
+                    let mut note = Note::from(note);
+                    note.id = id;
+                    Some(note)
+                })
+                .collect()
         }
         Err(e) => {
             eprintln!("Unable to open file: {}", e);
@@ -68,6 +68,7 @@ pub fn read_to_notes_str(unwanted_ids: &[usize]) -> Vec<String> {
 
                      id += 1;
                      if unwanted_ids.contains(&(id)) {
+                         println!("Tossed note: {}", note.get(..note.len()-2).unwrap());
                          return None
                      }
                      Some(note.to_string())
@@ -112,8 +113,13 @@ pub fn edit_notes(unwanted_id: &usize, new_note: &[String], new_priority: &usize
                      id += 1;
                      if *unwanted_id == id {
                          if is_arg_set("-p", "--priority") {
-                             let new_note = format!("{}:{}", new_note.join(" "), new_priority);
-                             return Some(new_note);
+                             if new_note.len() != 0 {
+                                let new_note = format!("{}:{}", new_note.join(" "), new_priority);
+                                return Some(new_note);
+                             }
+                             let mut new_note = Note::from(note);
+                             new_note.priority = *new_priority;
+                             return Some(format!("{}:{}", new_note.note, new_note.priority));
                          }
                          let note = Note::from(note);
                          return Some(format!("{}:{}", new_note.join(" "), note.priority));
@@ -150,30 +156,30 @@ pub fn write_notes(notes: &[String]) {
 }
 
 pub fn style_string(original: &str, color: &str, style: &str) -> colored::ColoredString {
-    let color = match color {
-        "black" => colored::Color::Black,
-        "blue" => colored::Color::Blue,
-        "cyan" => colored::Color::Cyan,
-        "green" => colored::Color::Green,
-        "magenta" => colored::Color::Magenta,
-        "red" => colored::Color::Red,
-        "white" => colored::Color::White,
-        "yellow" => colored::Color::Yellow,
-        "bright black" => colored::Color::BrightBlack,
-        "bright blue" => colored::Color::BrightBlue,
-        "bright cyan" => colored::Color::BrightCyan,
-        "bright green" => colored::Color::BrightGreen,
-        "bright magenta" => colored::Color::BrightMagenta,
-        "bright red" => colored::Color::BrightRed,
-        "bright white" => colored::Color::BrightWhite,
-        "bright yellow" => colored::Color::BrightYellow,
-        _ => colored::Color::White
+    let colored = match color {
+        "black" => original.color(colored::Color::Black),
+        "blue" => original.color(colored::Color::Blue),
+        "cyan" => original.color(colored::Color::Cyan),
+        "green" => original.color(colored::Color::Green),
+        "magenta" => original.color(colored::Color::Magenta),
+        "red" => original.color(colored::Color::Red),
+        "white" => original.color(colored::Color::White),
+        "yellow" => original.color(colored::Color::Yellow),
+        "bright black" => original.color(colored::Color::BrightBlack),
+        "bright blue" => original.color(colored::Color::BrightBlue),
+        "bright cyan" => original.color(colored::Color::BrightCyan),
+        "bright green" => original.color(colored::Color::BrightGreen),
+        "bright magenta" => original.color(colored::Color::BrightMagenta),
+        "bright red" => original.color(colored::Color::BrightRed),
+        "bright white" => original.color(colored::Color::BrightWhite),
+        "bright yellow" => original.color(colored::Color::BrightYellow),
+        _ => original.normal()
     };
 
     match style {
-        "bold" => original.color(color).bold(),
-        "italic" => original.color(color).italic(),
-        "underline" => original.color(color).underline(),
-        _ => original.color(color),
+        "bold" => colored.bold(),
+        "italic" => colored.italic(),
+        "underline" => colored.underline(),
+        _ => colored,
     }
 }

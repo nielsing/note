@@ -9,7 +9,7 @@ pub struct Note {
 
 impl fmt::Display for Note {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}\t{}", self.id, self.note)
+        write!(f, "{} {}", self.id, self.note)
     }
 }
 

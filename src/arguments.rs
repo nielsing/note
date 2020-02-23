@@ -2,7 +2,7 @@ use std::env;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "Note")]
+#[structopt(name = "Note - Terminal Sticky Notes!")]
 pub struct Args {
     #[structopt(subcommand)]
     pub action: Action,
@@ -74,12 +74,12 @@ const ENV_ARG_KEYS: [&str; 16] = [
 
 const DEFAULT_ENV_VALUES: [&str; 16] = [
     "NOTES:",
-    "bright white",
+    "",
     "bold",
     "",
-    "bright white",
+    "",
     "bold",
-    "white",
+    "",
     "normal",
     "blue",
     "normal",
