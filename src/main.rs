@@ -2,62 +2,50 @@ use structopt::StructOpt;
 
 use note::util;
 use note::note::*;
-use note::arguments::{Args, Action, EnvArgs, get_env_arg};
+use note::arguments::*;
 
-fn edit(id: &usize, note: &[String], priority: &usize) {
-    util::edit_notes(id, note, priority);
+fn edit(id: usize, note: &[String], priority: usize) {
+    util::edit_note(id, note, priority);
 }
 
-fn list(show_id: bool, priority: bool) {
+fn list(show_id: bool, priority: bool, limit: Option<usize>) {
     let mut notes: Vec<Note> = util::read_to_notes(&[]);
-    if notes.len() == 0 {
+
+    // Print empty message if notes file is empty
+    if notes.is_empty() {
         print!("{}", util::style_string(&get_env_arg(EnvArgs::EmptyMessage),
                                         &get_env_arg(EnvArgs::EmptyMessageColor),
                                         &get_env_arg(EnvArgs::EmptyMessageStyle)));
         return;
     }
 
+    // Print welcome message
     print!("{}\n{}\n", util::style_string(&get_env_arg(EnvArgs::Message), 
                                           &get_env_arg(EnvArgs::MessageColor), 
                                           &get_env_arg(EnvArgs::MessageStyle)), 
-                       vec!["-"; get_env_arg(EnvArgs::Message).len()].join(""));
+                       "-".repeat(get_env_arg(EnvArgs::Message).len()));
+
+    // Sort by priority if priority flag is set
     if priority {
         notes.sort_by(|a, b| a.priority.cmp(&b.priority).reverse());
     }
 
-    let notes: Vec<String> = notes.into_iter()
-        .map(|note| {
-            let note_format = if show_id { note.to_string() } else { note.note };
-            match note.priority {
-                5 => format!("{}", util::style_string(&note_format,
-                                                      &get_env_arg(EnvArgs::P5Color),
-                                                      &get_env_arg(EnvArgs::P5Style))),
-                4 => format!("{}", util::style_string(&note_format,
-                                                      &get_env_arg(EnvArgs::P4Color),
-                                                      &get_env_arg(EnvArgs::P3Style))),
-                3 => format!("{}", util::style_string(&note_format,
-                                                      &get_env_arg(EnvArgs::P3Color),
-                                                      &get_env_arg(EnvArgs::P3Style))),
-                2 => format!("{}", util::style_string(&note_format,
-                                                      &get_env_arg(EnvArgs::P2Color),
-                                                      &get_env_arg(EnvArgs::P2Style))),
-                _ => format!("{}", util::style_string(&note_format,
-                                                      &get_env_arg(EnvArgs::P1Color),
-                                                      &get_env_arg(EnvArgs::P1Style))),
-            }
-        })
-        .collect();
-    println!("{}", notes.join("\n"));
+
+    let styled_notes = util::get_styled_notes(&notes, show_id);
+    match limit {
+        Some(limit) => println!("{}", styled_notes[..limit].join("\n")),
+        None => println!("{}", styled_notes.join("\n")),
+    };
 }
 
 fn stick(note: &[String], priority: usize) {
     let note = format!("{}:{}", note.join(" "), priority);
-    util::append_notes(&note);
+    util::append_note(&note);
 }
 
 fn toss(ids: &[usize], all: bool) {
     let notes = util::read_to_notes_str(ids);
-    if all || notes.len() == 0 {
+    if all || notes.is_empty() {
         println!("All notes tossed away!");
         util::clear_notes();
         return;
@@ -70,8 +58,8 @@ fn main() {
     let args = Args::from_args();
     
     match args.action {
-        Action::Edit{ id, note, priority } => edit(&id, &note, &priority),
-        Action::List{ show_id, priority } => list(show_id, priority),
+        Action::Edit{ id, note, priority } => edit(id, &note, priority),
+        Action::List{ show_id, priority, limit } => list(show_id, priority, limit),
         Action::Stick{ note, priority } => stick(&note, priority),
         Action::Toss{ ids, all } => toss(&ids, all)
     }

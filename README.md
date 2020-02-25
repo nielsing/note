@@ -29,6 +29,9 @@ note list --show_id
 
 // To list notes in order of priority
 note list --priority
+
+// List <limit> many notes
+note list --limit <limit>
 ```
 
 Toss a note to the trash

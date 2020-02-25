@@ -4,8 +4,10 @@ use std::io::prelude::*;
 use std::path::PathBuf;
 
 use colored::*;
+use regex::Regex;
 
 use crate::note::*;
+use crate::arguments::*;
 
 fn get_notes_file() -> PathBuf {
     if let Some(mut dir) = dirs::config_dir() {
@@ -82,11 +84,11 @@ pub fn read_to_notes_str(unwanted_ids: &[usize]) -> Vec<String> {
     }
 }
 
-pub fn append_notes(notes: &str) {
+pub fn append_note(notes: &str) {
     let path = get_notes_file();
     match OpenOptions::new().append(true).create(true).open(path.to_str().unwrap()) {
         Ok(mut file) => {
-            if let Err(e) = write!(file, "{}\n", notes) {
+            if let Err(e) = writeln!(file, "{}", notes) {
                 eprintln!("Unable to write to notes.txt: {}", e);
             }
         }
@@ -94,7 +96,7 @@ pub fn append_notes(notes: &str) {
     }
 }
 
-pub fn edit_notes(unwanted_id: &usize, new_note: &[String], new_priority: &usize) {
+pub fn edit_note(unwanted_id: usize, new_note: &[String], new_priority: usize) {
     let path = get_notes_file();
     let mut all_notes = Vec::new();
     match OpenOptions::new().read(true).open(path.to_str().unwrap()) {
@@ -111,14 +113,14 @@ pub fn edit_notes(unwanted_id: &usize, new_note: &[String], new_priority: &usize
                      }
 
                      id += 1;
-                     if *unwanted_id == id {
+                     if unwanted_id == id {
                          if is_arg_set("-p", "--priority") {
-                             if new_note.len() != 0 {
+                             if !new_note.is_empty() {
                                 let new_note = format!("{}:{}", new_note.join(" "), new_priority);
                                 return Some(new_note);
                              }
                              let mut new_note = Note::from(note);
-                             new_note.priority = *new_priority;
+                             new_note.priority = new_priority;
                              return Some(format!("{}:{}", new_note.note, new_note.priority));
                          }
                          let note = Note::from(note);
@@ -133,6 +135,7 @@ pub fn edit_notes(unwanted_id: &usize, new_note: &[String], new_priority: &usize
     write_notes(&all_notes);
 }
 
+// Completely empties notes file
 pub fn clear_notes() {
     let path = get_notes_file();
     match OpenOptions::new().write(true).open(path.to_str().unwrap()) {
@@ -143,11 +146,13 @@ pub fn clear_notes() {
     }
 }
 
+// Writes specified notes to notes file and truncates the file if the number of notes being written
+// to the file is lower than the number of notes within the file.
 pub fn write_notes(notes: &[String]) {
     let path = get_notes_file();
     match OpenOptions::new().write(true).truncate(true).open(path.to_str().unwrap()) {
         Ok(mut file) => {
-            if let Err(e) = write!(file, "{}\n", notes.join("\n")) {
+            if let Err(e) = writeln!(file, "{}", notes.join("\n")) {
                 eprintln!("Unable to write to notes.txt: {}", e);
             }
         },
@@ -155,6 +160,7 @@ pub fn write_notes(notes: &[String]) {
     }
 }
 
+// Takes in a string (original) and colors and styles it, returning a ColoredString
 pub fn style_string(original: &str, color: &str, style: &str) -> colored::ColoredString {
     let colored = match color {
         "black" => original.color(colored::Color::Black),
@@ -182,4 +188,75 @@ pub fn style_string(original: &str, color: &str, style: &str) -> colored::Colore
         "underline" => colored.underline(),
         _ => colored,
     }
+}
+
+fn get_bracket_locations(notes: &[Note]) -> Vec<Option<usize>> {
+    let re = Regex::new(r"^\[[[:alpha:]\s\+]+\]").unwrap();
+    notes.iter()
+        .map(|note| {
+            match re.find(&note.note) {
+                Some(pos) => Some(pos.end()),
+                None => None,
+            }
+        })
+        .collect()
+}
+
+// Style all notes based by priority level 
+pub fn get_styled_notes(notes: &[Note], show_id: bool) -> Vec<String> {
+    let bracket_locations = get_bracket_locations(notes);
+    let max_bracket = match bracket_locations.iter().max() {
+        Some(option) => match option {
+            Some(val) => *val,
+            None => 0,
+        },
+        None => 0,
+    };
+
+    notes.iter()
+        .enumerate()
+        .map(|(index, note)| {
+            let location = match bracket_locations[index] {
+                Some(location) => location,
+                None => 0,
+            };
+            let num_of_spaces = max_bracket - location;
+
+            // Specify format of the note. 
+            // If the show_id flag is set we will format notes with the ID
+            // If the note matches the regex rule in 'get_bracket_locations()' we will format
+            // with an appropriate number of spaces
+            let note_format = if show_id && location != 0 {
+                format!("{}{}{}{}", note.id, note.note.get(..location).unwrap(),
+                                    " ".repeat(num_of_spaces),
+                                    note.note.get(location..).unwrap())
+            } else if show_id {
+                note.to_string()
+            } else if location != 0 { 
+                format!("{}{}{}", note.note.get(..location).unwrap(),
+                                  " ".repeat(num_of_spaces),
+                                  note.note.get(location..).unwrap())
+            } else {
+                note.note.clone()
+            };
+
+            match note.priority {
+                5 => format!("{}", style_string(&note_format,
+                                                &get_env_arg(EnvArgs::P5Color),
+                                                &get_env_arg(EnvArgs::P5Style))),
+                4 => format!("{}", style_string(&note_format,
+                                                &get_env_arg(EnvArgs::P4Color),
+                                                &get_env_arg(EnvArgs::P3Style))),
+                3 => format!("{}", style_string(&note_format,
+                                                &get_env_arg(EnvArgs::P3Color),
+                                                &get_env_arg(EnvArgs::P3Style))),
+                2 => format!("{}", style_string(&note_format,
+                                                &get_env_arg(EnvArgs::P2Color),
+                                                &get_env_arg(EnvArgs::P2Style))),
+                _ => format!("{}", style_string(&note_format,
+                                                &get_env_arg(EnvArgs::P1Color),
+                                                &get_env_arg(EnvArgs::P1Style))),
+            }
+        })
+        .collect()
 }

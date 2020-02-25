@@ -30,7 +30,10 @@ pub enum Action {
         show_id: bool,
         /// List notes in order of priority
         #[structopt(short, long)]
-        priority: bool
+        priority: bool,
+        /// Limit list to <limit> many notes. (useful with -p flag)
+        #[structopt(short, long)]
+        limit: Option<usize>,
     },
     /// Stick a new note
     #[structopt(alias = "s")]
@@ -113,7 +116,7 @@ pub enum EnvArgs {
 
 pub fn get_env_arg(key: EnvArgs) -> String {
     match env::var(ENV_ARG_KEYS[key as usize]) {
-        Ok(val) => val.to_string(),
+        Ok(val) => val,
         _ => DEFAULT_ENV_VALUES[key as usize].to_string(),
     }
 }
