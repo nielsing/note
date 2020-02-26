@@ -20,7 +20,7 @@ pub enum Action {
         #[structopt(short, long, default_value = "1")]
         /// New priority of note
         #[structopt(possible_values = &["1", "2", "3", "4", "5"])]
-        priority: usize
+        priority: usize,
     },
     /// List all notes
     #[structopt(alias = "ls")]
@@ -43,7 +43,7 @@ pub enum Action {
         #[structopt(short, long, default_value = "1")]
         /// Priority of note
         #[structopt(possible_values = &["1", "2", "3", "4", "5"])]
-        priority: usize
+        priority: usize,
     },
     /// Toss a note to the trash
     #[structopt(alias = "t")]
@@ -52,7 +52,7 @@ pub enum Action {
         ids: Vec<usize>,
         /// Toss all notes
         #[structopt(short, long, conflicts_with = "ids")]
-        all: bool
+        all: bool,
     },
 }
 
@@ -72,26 +72,12 @@ const ENV_ARG_KEYS: [&str; 16] = [
     "NOTE_P4_COLOR",
     "NOTE_P4_STYLE",
     "NOTE_P5_COLOR",
-    "NOTE_P5_STYLE"
+    "NOTE_P5_STYLE",
 ];
 
 const DEFAULT_ENV_VALUES: [&str; 16] = [
-    "NOTES:",
-    "",
-    "bold",
-    "",
-    "",
-    "bold",
-    "",
-    "normal",
-    "blue",
-    "normal",
-    "green",
-    "normal",
-    "yellow",
-    "normal",
-    "red",
-    "bold"
+    "NOTES:", "", "bold", "", "", "bold", "", "normal", "blue", "normal", "green", "normal",
+    "yellow", "normal", "red", "bold",
 ];
 
 #[derive(Copy, Clone)]
