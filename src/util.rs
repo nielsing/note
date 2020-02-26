@@ -38,11 +38,13 @@ pub fn read_to_notes(unwanted_ids: &[usize]) -> Vec<Note> {
                     }
 
                     id += 1;
-                    if unwanted_ids.contains(&id) {
-                        return None;
-                    }
+
                     let mut note = Note::from(note);
                     note.id = id;
+                    if unwanted_ids.contains(&id) {
+                        note.in_use = false;
+                    }
+
                     Some(note)
                 })
                 .collect()

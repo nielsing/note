@@ -5,6 +5,7 @@ pub struct Note {
     pub id: usize,
     pub note: String,
     pub priority: usize,
+    pub in_use: bool,
 }
 
 impl fmt::Display for Note {
@@ -21,6 +22,7 @@ impl From<&str> for Note {
                 id: 0,
                 note: String::from(values[0]),
                 priority: 1,
+                in_use: true,
             };
         }
         let priority = match values.pop() {
@@ -35,6 +37,7 @@ impl From<&str> for Note {
             id: 0,
             note: note,
             priority,
+            in_use: true,
         }
     }
 }
