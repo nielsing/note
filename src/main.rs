@@ -54,21 +54,23 @@ fn stick(note: &[String], priority: usize) {
 
 fn toss(ids: &[usize], all: bool) {
     let notes = util::read_to_notes(ids);
-    let mut tmp = Vec::new();
-    for note in &notes {
+    // Filtering out all notes not in use
+    let notes: Vec<String> = notes.iter().filter_map(|note| {
         if !note.in_use {
-            println!("Tossed note: {}", note.note.get(..note.note.len()-2).unwrap());
+            println!("Tossed note: {}", note.note);
+            None
         } else {
-            tmp.push(note.to_string());
+            Some(format!("{}:{}", note.note, note.priority))
         }
-    }
+    }).collect();
+
     if all || notes.is_empty() {
         println!("All notes tossed away!");
         util::clear_notes();
         return;
     }
 
-    util::write_notes(&tmp);
+    util::write_notes(&notes);
 }
 
 fn main() {

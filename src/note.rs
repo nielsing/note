@@ -35,7 +35,7 @@ impl From<&str> for Note {
         let note = values.join(":");
         Note {
             id: 0,
-            note: note,
+            note,
             priority,
             in_use: true,
         }
