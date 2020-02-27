@@ -27,7 +27,7 @@ List all of your notes
 note list
 
 // To list notes with their respective IDs
-note list --show_id
+note list --show-id
 
 // To list notes in order of priority
 note list --priority
