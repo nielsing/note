@@ -53,11 +53,9 @@ fn stick(note: &[String], priority: usize) {
 }
 
 fn toss(ids: &[usize], all: bool) {
-    let notes = util::read_to_notes(ids);
-    // Filtering out all notes not in use
-    let notes: Vec<String> = notes.iter().filter_map(|note| {
-            Some(format!("{}:{}", note.note, note.priority))
-    }).collect();
+    let notes: Vec<String> = util::read_to_notes(ids).iter()
+        .map(|note| format!("{}:{}", note.note, note.priority))
+        .collect();
 
     if all || notes.is_empty() {
         println!("All notes tossed away!");
