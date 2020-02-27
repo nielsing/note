@@ -56,12 +56,7 @@ fn toss(ids: &[usize], all: bool) {
     let notes = util::read_to_notes(ids);
     // Filtering out all notes not in use
     let notes: Vec<String> = notes.iter().filter_map(|note| {
-        if !note.in_use {
-            println!("Tossed note: {}", note.note);
-            None
-        } else {
             Some(format!("{}:{}", note.note, note.priority))
-        }
     }).collect();
 
     if all || notes.is_empty() {

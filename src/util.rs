@@ -39,12 +39,13 @@ pub fn read_to_notes(unwanted_ids: &[usize]) -> Vec<Note> {
 
                     id += 1;
 
-                    let mut note = Note::from(note);
-                    note.id = id;
                     // Marking a note as unused
                     if unwanted_ids.contains(&id) {
-                        note.in_use = false;
+                        println!("Tossed note: {}", note);
+                        return None;
                     }
+                    let mut note = Note::from(note);
+                    note.id = id;
 
                     Some(note)
                 })
