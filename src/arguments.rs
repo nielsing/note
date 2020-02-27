@@ -76,8 +76,22 @@ const ENV_ARG_KEYS: [&str; 16] = [
 ];
 
 const DEFAULT_ENV_VALUES: [&str; 16] = [
-    "NOTES:", "", "bold", "", "", "bold", "", "normal", "blue", "normal", "green", "normal",
-    "yellow", "normal", "red", "bold",
+    "NOTES:",
+    "",
+    "bold",
+    "",
+    "",
+    "bold",
+    "",
+    "normal",
+    "blue",
+    "normal",
+    "green",
+    "normal",
+    "yellow",
+    "normal",
+    "red",
+    "bold",
 ];
 
 #[derive(Copy, Clone)]
