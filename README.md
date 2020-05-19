@@ -1,5 +1,5 @@
 # Note - Terminal Sticky Notes!
-![Note terminal welcome message](https://github.com/Furduhlutur/note/blob/master/media/note_example.png)
+![Note terminal welcome message](https://github.com/nielsing/note/blob/master/media/note_example.png)
 
 Are you tired of dealing with physical sticky notes? Is your computer screen cluttered with sticky 
 notes? Are you tired of having to pick up a pen to write your notes? Do you wish for a simpler and
