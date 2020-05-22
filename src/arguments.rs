@@ -25,12 +25,15 @@ pub enum Action {
     /// List all notes
     #[structopt(alias = "ls")]
     List {
-        /// List all notes with their IDs
+        /// List notes with their IDs
         #[structopt(short, long)]
         show_id: bool,
         /// List notes in order of priority
         #[structopt(short, long)]
         priority: bool,
+        /// Filter notes after project
+        #[structopt(short, long)]
+        filter: Option<String>,
         /// Limit list to <limit> many notes. (useful with -p flag)
         #[structopt(short, long)]
         limit: Option<usize>,
@@ -76,22 +79,8 @@ const ENV_ARG_KEYS: [&str; 16] = [
 ];
 
 const DEFAULT_ENV_VALUES: [&str; 16] = [
-    "NOTES:",
-    "",
-    "bold",
-    "",
-    "",
-    "bold",
-    "",
-    "normal",
-    "blue",
-    "normal",
-    "green",
-    "normal",
-    "yellow",
-    "normal",
-    "red",
-    "bold",
+    "NOTES:", "", "bold", "", "", "bold", "", "normal", "blue", "normal", "green", "normal",
+    "yellow", "normal", "red", "bold",
 ];
 
 #[derive(Copy, Clone)]

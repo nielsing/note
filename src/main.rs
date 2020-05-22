@@ -1,3 +1,4 @@
+use regex::Regex;
 use structopt::StructOpt;
 
 use note::arguments::*;
@@ -8,7 +9,7 @@ fn edit(id: usize, note: &[String], priority: usize) {
     util::edit_note(id, note, priority);
 }
 
-fn list(show_id: bool, priority: bool, limit: Option<usize>) {
+fn list(show_id: bool, priority: bool, filter: Option<String>, limit: Option<usize>) {
     let mut notes: Vec<Note> = util::read_to_notes(&[]);
 
     // Print empty message if notes file is empty
@@ -40,6 +41,20 @@ fn list(show_id: bool, priority: bool, limit: Option<usize>) {
         notes.sort_by(|a, b| a.priority.cmp(&b.priority).reverse());
     }
 
+    // Filter after projects if the filter flag is set
+    if filter.is_some() {
+        let re = Regex::new(r"\[([^]]+)\]").unwrap();
+        let filter_value = filter.unwrap();
+
+        notes.retain(|note| {
+            let project_name = re.find(&note.note);
+            match project_name {
+                Some(pos) => &note.note[pos.start() + 1..pos.end() - 1] == filter_value,
+                None => false,
+            }
+        });
+    }
+
     let styled_notes = util::get_styled_notes(&notes, show_id);
     match limit {
         Some(limit) => println!("{}", styled_notes[..limit].join("\n")),
@@ -53,7 +68,8 @@ fn stick(note: &[String], priority: usize) {
 }
 
 fn toss(ids: &[usize], all: bool) {
-    let notes: Vec<String> = util::read_to_notes(ids).iter()
+    let notes: Vec<String> = util::read_to_notes(ids)
+        .iter()
         .map(|note| format!("{}:{}", note.note, note.priority))
         .collect();
 
@@ -74,8 +90,9 @@ fn main() {
         Action::List {
             show_id,
             priority,
+            filter,
             limit,
-        } => list(show_id, priority, limit),
+        } => list(show_id, priority, filter, limit),
         Action::Stick { note, priority } => stick(&note, priority),
         Action::Toss { ids, all } => toss(&ids, all),
     }

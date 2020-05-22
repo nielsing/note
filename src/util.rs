@@ -185,7 +185,7 @@ fn get_bracket_locations(notes: &[Note]) -> Vec<Option<usize>> {
         .collect()
 }
 
-// Style all notes based by priority level
+// Style all notes based on priority level
 pub fn get_styled_notes(notes: &[Note], show_id: bool) -> Vec<String> {
     let bracket_locations = get_bracket_locations(notes);
     let max_bracket = match bracket_locations.iter().max() {
