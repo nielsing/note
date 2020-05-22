@@ -1,5 +1,11 @@
-# Note - Terminal Sticky Notes!
-![Note terminal welcome message](https://github.com/nielsing/note/blob/master/media/note_example.png)
+<h1 align="center">
+  Note - Terminal Sticky Notes!
+  <br>
+  <a href="https://github.com/nielsing/note"><img src="https://github.com/nielsing/note/blob/master/media/note_example.png" alt="note welcome message"></a>
+  <br>
+</h1>
+
+------
 
 Are you tired of dealing with physical sticky notes? Is your computer screen cluttered with sticky 
 notes? Are you tired of having to pick up a pen to write your notes? Do you wish for a simpler and
